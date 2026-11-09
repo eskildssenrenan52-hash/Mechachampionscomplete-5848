@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { BattleScreen } from "@/screens/battle";
 import { spendItem, teamSaves, useGame } from "@/game/save";
 import { ITEM_MAP } from "@/game/config";
@@ -15,7 +15,7 @@ interface LogEntry { who: SpeakerId; text: string }
 interface ResultInfo { first: boolean; gold: number; xp: number; item?: string; qty?: number; fightGold: number; fightXp: number; levelUps: string[] }
 
 const reducedMotion = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-const ALLIES: SpeakerId[] = ["lyra", "nara", "aurorion"];
+const ALLIES: SpeakerId[] = ["lyra", "lyra_orbit", "nara", "aurorion"];
 
 export function StoryScreen({ onBack }: { onBack: () => void }) {
   const g = useGame();
@@ -190,8 +190,21 @@ export function StoryScreen({ onBack }: { onBack: () => void }) {
 // ------------------------------------------------------------------ mapa
 function StoryMap({ cleared, last, hasTeam, playerLevel, onOpen, onBack }: { cleared: string[]; last: string | null; hasTeam: boolean; playerLevel: number; onOpen: (c: StoryChapter) => void; onBack: () => void }) {
   const focus = useRef<HTMLElement | null>(null);
+  const drag = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
+  const [mapView, setMapView] = useState({ x: 0, y: 0, zoom: 1 });
   useEffect(() => { focus.current?.scrollIntoView({ block: "center", behavior: reducedMotion() ? "auto" : "smooth" }); }, []);
   const nextOpen = STORY_CHAPTERS.findIndex((c, i) => chapterUnlocked(cleared, i) && !cleared.includes(c.id));
+  const points = STORY_CHAPTERS.map((c, i) => c.map ?? { x: 22 + (i % 2) * 44, y: 92 - i * 9, region: i < 6 ? "CINTURÃO AURORA" : "ROTA HELIX" });
+  const mapDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    drag.current = { x: e.clientX, y: e.clientY, ox: mapView.x, oy: mapView.y };
+  };
+  const mapMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!drag.current) return;
+    setMapView((v) => ({ ...v, x: drag.current!.ox + e.clientX - drag.current!.x, y: drag.current!.oy + e.clientY - drag.current!.y }));
+  };
+  const mapUp = () => { drag.current = null; };
+  const zoom = (delta: number) => setMapView((v) => ({ ...v, zoom: Math.max(.72, Math.min(1.8, +(v.zoom + delta).toFixed(2))) }));
   return (
     <div className="ms-root ms-map" data-testid="story-map">
       <img className="ms-bg" src="/story/cover.webp" alt="" />
@@ -205,6 +218,17 @@ function StoryMap({ cleared, last, hasTeam, playerLevel, onOpen, onBack }: { cle
         <span className="ms-progress" aria-label={`${cleared.length} de ${STORY_CHAPTERS.length} capítulos`}>{cleared.length}/{STORY_CHAPTERS.length}</span>
       </header>
       {!hasTeam && <p className="ms-warn">Conclua o tutorial e monte uma equipe no Hangar para lutar na história.</p>}
+      <section className="ms-route-panel" aria-label="Mapa de lugares da campanha">
+        <header className="ms-route-head"><div><small>ATLAS DE NAVEGAÇÃO · ARRASTE PARA EXPLORAR</small><h2>ROTA DA PRIMEIRA LUZ</h2></div><div className="ms-route-tools"><button className="ai-plate" aria-label="Afastar mapa" onClick={() => zoom(-.12)}>−</button><strong>{Math.round(mapView.zoom * 100)}%</strong><button className="ai-plate" aria-label="Aproximar mapa" onClick={() => zoom(.12)}>+</button><button className="ai-plate" onClick={() => setMapView({ x: 0, y: 0, zoom: 1 })}>CENTRAR</button></div></header>
+        <div className="ms-route-viewport" onPointerDown={mapDown} onPointerMove={mapMove} onPointerUp={mapUp} onPointerCancel={mapUp} onWheel={(e) => zoom(e.deltaY < 0 ? .06 : -.06)}>
+          <div className="ms-route-world" style={{ transform: `translate(${mapView.x}px, ${mapView.y}px) scale(${mapView.zoom})` }}>
+            <div className="ms-route-glow" />
+            <svg className="ms-route-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline points={points.map((p) => `${p.x},${p.y}`).join(" ")} /></svg>
+            {points.map((p, i) => { const c = STORY_CHAPTERS[i]; const unlocked = chapterUnlocked(cleared, i); const done = cleared.includes(c.id); return <button key={c.id} className={`ms-route-node${done ? " is-done" : ""}${unlocked ? "" : " is-locked"}${i === nextOpen ? " is-next" : ""}`} style={{ left: `${p.x}%`, top: `${p.y}%` }} disabled={!unlocked} onClick={() => onOpen(c)} aria-label={`${c.title}, ${p.region}, ${unlocked ? "disponível" : "bloqueado"}`}><span>{String(c.num).padStart(2, "0")}</span><b>{c.title}</b><small>{p.region}</small></button>; })}
+          </div>
+        </div>
+        <p className="ms-route-hint">PINÇA OU RODA DO MOUSE: ZOOM · ARRASTE COM UM DEDO: APROXIME-SE DE CADA REGIÃO</p>
+      </section>
       <ol className="ms-chapters">
         {STORY_CHAPTERS.map((c, i) => {
           const unlocked = chapterUnlocked(cleared, i);

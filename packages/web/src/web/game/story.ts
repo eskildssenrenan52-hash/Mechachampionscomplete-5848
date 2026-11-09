@@ -8,7 +8,8 @@ import { addGold, addPlayerXP, applyPetRewards, getState, incBattlesWon, setStat
 
 export type SpeakerId =
   | "lyra" | "nara" | "aurorion" | "narrador" | "sistema"
-  | "scavenger" | "scrapking" | "siegetank" | "mirrorduelist" | "chronoguard" | "voidarchon";
+  | "scavenger" | "scrapking" | "siegetank" | "mirrorduelist" | "chronoguard" | "voidarchon"
+  | "lyra_orbit" | "voidnavigator";
 
 export interface Speaker { name: string; portrait?: string; side: "left" | "right"; tone: string }
 
@@ -24,6 +25,8 @@ export const SPEAKERS: Record<SpeakerId, Speaker> = {
   mirrorduelist: { name: "DUELISTA PRISMÁTICO", portrait: "/busts/npc_mirrorduelist_bust.png", side: "right", tone: "#c9a7ff" },
   chronoguard: { name: "GUARDIÃO CRONAL", portrait: "/busts/npc_chronoguard_bust.png", side: "right", tone: "#8fd8ff" },
   voidarchon: { name: "ARCONTE DO VAZIO", portrait: "/busts/npc_voidarchon_bust.png", side: "right", tone: "#b46bff" },
+  lyra_orbit: { name: "LYRA · TRAJE ORBITAL", portrait: "/story/lyra-s2.webp", side: "left", tone: "#63f2ff" },
+  voidnavigator: { name: "NAVEGANTE DO VAZIO", portrait: "/story/npc-s2-voidnavigator.webp", side: "right", tone: "#d28cff" },
 };
 
 export type StoryFx = "shake" | "flash" | "glitch" | "zoom" | "alarm" | "quake";
@@ -64,6 +67,8 @@ export interface StoryChapter {
   recommended: number;
   reward: { gold: number; xp: number; item: string; qty: number };
   beats: StoryBeat[];
+  /** Posição no mapa panorâmico vertical da campanha. Ausente nos capítulos antigos = legado. */
+  map?: { x: number; y: number; region: string };
 }
 
 const L = (who: SpeakerId, text: string, fx?: StoryFx, when?: [string, string]): StoryLine => ({ kind: "line", who, text, fx, when });
@@ -74,7 +79,7 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     id: "ferrugem", num: 1, title: "FERRUGEM NA LINHA", subtitle: "Plataforma Aurora · 23:40",
     synopsis: "Os trens pararam. Algo está devorando os cabos do metrô.",
     art: art("ch1"), thumb: art("ch1-thumb"), recommended: 1,
-    reward: { gold: 250, xp: 50, item: "repair_kit", qty: 2 },
+    reward: { gold: 250, xp: 50, item: "repair_kit", qty: 2 }, map: { x: 24, y: 92, region: "LINHA AURORA" },
     beats: [
       L("narrador", "Três noites depois da Primeira Luz, a cidade voltou a dormir tranquila. Quase."),
       L("sistema", "ALERTA: LINHA AURORA SEM ENERGIA. SETE COMPOSIÇÕES PARADAS.", "alarm"),
@@ -92,7 +97,7 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     id: "trono", num: 2, title: "O TRONO DE SUCATA", subtitle: "Ferro-velho Industrial · Pôr do sol",
     synopsis: "Um soberano feito de refugo reivindica a cidade.",
     art: art("ch2"), thumb: art("ch2-thumb"), recommended: 3,
-    reward: { gold: 500, xp: 100, item: "energy_cell", qty: 2 },
+    reward: { gold: 500, xp: 100, item: "energy_cell", qty: 2 }, map: { x: 68, y: 82, region: "FERRO-VELHO" },
     beats: [
       L("nara", "Olha esse lugar. Cada pilha de sucata aqui já foi um robô de alguém."),
       L("scrapking", "BEM-VINDOS AO MEU REINO! Tudo que a cidade joga fora, eu coroo.", "quake"),
@@ -118,7 +123,7 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     id: "cerco", num: 3, title: "CERCO À USINA", subtitle: "Usina Central · Tempestade",
     synopsis: "Uma máquina de invasão marcha contra o coração elétrico da cidade.",
     art: art("ch3"), thumb: art("ch3-thumb"), recommended: 6,
-    reward: { gold: 900, xp: 180, item: "shield_chip", qty: 2 },
+    reward: { gold: 900, xp: 180, item: "shield_chip", qty: 2 }, map: { x: 28, y: 70, region: "USINA CENTRAL" },
     beats: [
       L("sistema", "MURALHA EXTERNA DA USINA ROMPIDA. INTEGRIDADE 41%.", "alarm"),
       L("lyra", "Aquilo é um Bastião de Cerco. Máquina de guerra autônoma. Ninguém fabrica isso há quarenta anos."),
@@ -136,7 +141,7 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     id: "espelhos", num: 4, title: "SALÃO DOS ESPELHOS", subtitle: "Cofre sob o Museu · Silêncio",
     synopsis: "Um duelista de vidro mostra ao piloto o que ele poderia se tornar.",
     art: art("ch4"), thumb: art("ch4-thumb"), recommended: 9,
-    reward: { gold: 1500, xp: 300, item: "mega_repair", qty: 1 },
+    reward: { gold: 1500, xp: 300, item: "mega_repair", qty: 1 }, map: { x: 66, y: 58, region: "MUSEU SUBTERRÂNEO" },
     beats: [
       L("narrador", "Cada espelho devolve um Aurorion diferente. Uns coroados. Uns quebrados. Uns que nunca saíram do hangar."),
       L("mirrorduelist", "Bem-vindo, campeão. Aqui guardamos os futuros que a cidade descartou.", "flash"),
@@ -159,7 +164,7 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     id: "segundos", num: 5, title: "ENTRE DOIS SEGUNDOS", subtitle: "Observatório · 03:00:00",
     synopsis: "No alto da cidade, o tempo parou — e alguém guarda a ampulheta.",
     art: art("ch5"), thumb: art("ch5-thumb"), recommended: 12,
-    reward: { gold: 2400, xp: 480, item: "energy_cell", qty: 3 },
+    reward: { gold: 2400, xp: 480, item: "energy_cell", qty: 3 }, map: { x: 32, y: 46, region: "OBSERVATÓRIO" },
     beats: [
       L("narrador", "A chuva não cai. O raio não termina. Só os passos de Aurorion fazem barulho."),
       L("chronoguard", "Tique. Você chegou entre um segundo e o próximo. Ninguém deveria caminhar aqui.", "zoom"),
@@ -177,7 +182,7 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     id: "eclipse", num: 6, title: "ECLIPSE DA PRIMEIRA LUZ", subtitle: "Praça do Portal · O fim da noite",
     synopsis: "O Arconte do Vazio abre o céu. A última luz é a sua.",
     art: art("ch6"), thumb: art("ch6-thumb"), recommended: 15,
-    reward: { gold: 3600, xp: 750, item: "revive_core", qty: 2 },
+    reward: { gold: 3600, xp: 750, item: "revive_core", qty: 2 }, map: { x: 60, y: 36, region: "PRAÇA DO PORTAL" },
     beats: [
       L("narrador", "O sol negro se abre sobre a praça. As janelas da cidade apagam uma a uma.", "quake"),
       L("voidarchon", "Pequena luz. Vim apagar o cansaço deste mundo. Ninguém mais precisará lutar.", "glitch"),
@@ -194,6 +199,60 @@ export const STORY_CHAPTERS: StoryChapter[] = [
       L("lyra", "A cidade está acordando. Bom trabalho, piloto. De verdade."),
       L("aurorion", "Não foi só meu reator. Foi cada pessoa que acendeu uma luz esta noite."),
       L("sistema", "CRÔNICAS DA PRIMEIRA LUZ — CONCLUÍDAS. NOVAS AMEAÇAS SERÃO REGISTRADAS."),
+    ],
+  },
+  {
+    id: "orbital", num: 7, title: "A CIDADE ACIMA DO CÉU", subtitle: "Porto Aurora · Órbita baixa",
+    synopsis: "O sinal que guiou o Arconte veio de uma estação esquecida acima das nuvens.",
+    art: art("ch7"), thumb: art("ch7-thumb"), recommended: 18,
+    reward: { gold: 4800, xp: 950, item: "mega_repair", qty: 2 }, map: { x: 76, y: 25, region: "PORTO AURORA" },
+    beats: [
+      L("lyra_orbit", "Vista o traje orbital, piloto. A estação está sem gravidade e sem leis há quinze anos."),
+      L("nara", "O pedido de carga que não existia… vinha daqui. Alguém continuou alimentando a estação depois do eclipse."),
+      L("voidnavigator", "Vocês chegaram tarde. A cidade abaixo é apenas o primeiro mapa que o Vazio vai apagar.", "glitch"),
+      L("lyra_orbit", "Navegante, entregue o núcleo cartográfico e ninguém precisa cair hoje."),
+      { kind: "choice", flag: "orbital", prompt: "Como atravessar a estação em colapso?", options: [
+        { value: "resgate", label: "Resgatar os trabalhadores presos", reply: [L("lyra_orbit", "Primeiro vidas. O mapa pode esperar."), L("voidnavigator", "Ainda escolhem pessoas. Interessante.")] },
+        { value: "atalho", label: "Cortar caminho pelo reator", reply: [L("nara", "Se o reator romper, perdemos a estação inteira."), L("voidnavigator", "Um piloto que escolhe velocidade. Eu conheço esse tipo de coragem.")] },
+      ] },
+      { kind: "battle", id: "orbital-1", label: "PORTO AURORA · DRONES SEM GRAVIDADE", arena: "nebula", enemies: [{ id: "npc_siegetank", level: 18, trained: 12, statScale: 0.9 }, { id: "npc_mirrorduelist", level: 18, trained: 11, statScale: 0.88 }] },
+      L("voidnavigator", "O núcleo não guarda coordenadas. Guarda destinos. E o próximo está no Jardim do Anel.", "zoom"),
+      L("lyra_orbit", "Então subimos mais uma vez. Primeira Luz, em formação."),
+    ],
+  },
+  {
+    id: "anel", num: 8, title: "O JARDIM DO ANEL", subtitle: "Estação Helix · Noite artificial",
+    synopsis: "Uma floresta orbital conserva mapas de mundos que ainda não nasceram.",
+    art: art("ch8"), thumb: art("ch8-thumb"), recommended: 21,
+    reward: { gold: 6200, xp: 1250, item: "revive_core", qty: 2 }, map: { x: 38, y: 14, region: "JARDIM HELIX" },
+    beats: [
+      L("narrador", "O jardim gira sem vento. Cada folha mostra um lugar diferente quando a luz passa por ela."),
+      L("voidnavigator", "Este anel desenhou a primeira cidade. Também desenhou o fim dela."),
+      L("aurorion", "Você fala como se tivesse visto tudo."),
+      L("voidnavigator", "Eu naveguei entre os segundos que vocês chamam de futuro. Em alguns, vocês vencem."),
+      { kind: "choice", flag: "anel", prompt: "Qual mapa levar para a cidade?", options: [
+        { value: "origem", label: "O mapa da origem — entender a Primeira Luz", reply: [L("nara", "Se descobrirmos quem ligou o primeiro reator, talvez desliguemos o Vazio sem destruí-lo.")] },
+        { value: "futuro", label: "O mapa do futuro — encontrar a próxima ameaça", reply: [L("lyra_orbit", "Informação primeiro. A cidade precisa sobreviver à próxima onda.")] },
+      ] },
+      { kind: "battle", id: "anel-1", label: "JARDIM HELIX · RAÍZES DE CRISTAL", arena: "jungle", enemies: [{ id: "npc_chronoguard", level: 21, trained: 14, statScale: 0.92 }, { id: "npc_voidarchon", level: 21, trained: 13, statScale: 0.9 }] },
+      L("narrador", "A raiz central abre uma janela para a lua quebrada. O mapa aponta para o outro lado da órbita.", "flash"),
+      L("voidnavigator", "O último ponto não é um lugar. É uma decisão."),
+    ],
+  },
+  {
+    id: "fronteira", num: 9, title: "A ÚLTIMA COORDENADA", subtitle: "Lua partida · Depois do eclipse",
+    synopsis: "No limite do mapa, o piloto encontra o lugar onde a luz foi inventada.",
+    art: art("ch9"), thumb: art("ch9-thumb"), recommended: 25,
+    reward: { gold: 9000, xp: 1900, item: "energy_cell", qty: 5 }, map: { x: 78, y: 4, region: "LUA PARTIDA" },
+    beats: [
+      L("sistema", "COORDENADA FORA DO CATÁLOGO. ORIGEM: ANTES DA PRIMEIRA LUZ.", "alarm"),
+      L("lyra_orbit", "A cidade inteira está olhando para nós. Não importa o que exista do outro lado: voltamos juntos."),
+      L("voidnavigator", "Eu fui criado para mapear o silêncio. Vocês me deram uma rota de volta.", "glitch"),
+      L("aurorion", "Então escolha: ser o caminho ou ser o fim dele."),
+      { kind: "battle", id: "fronteira-1", label: "LUA PARTIDA · O MAPA VIVO", arena: "rift", enemies: [{ id: "npc_voidarchon", level: 25, trained: 16, statScale: 0.95 }, { id: "npc_chronoguard", level: 25, trained: 15, statScale: 0.92 }] },
+      L("voidnavigator", "O mapa está aberto. Não para o Vazio — para todos os lugares que ainda podemos construir.", "flash"),
+      L("lyra_orbit", "Crônicas da Primeira Luz: segunda rota concluída. A próxima história começa onde a nossa termina."),
+      L("sistema", "NOVA ROTA REGISTRADA. O HORIZONTE NÃO É MAIS UM LIMITE."),
     ],
   },
 ];
@@ -264,4 +323,3 @@ export function completeStoryChapter(id: string): { first: boolean; gold: number
   addPlayerXP(ch.reward.xp);
   return { first: true, gold: ch.reward.gold, xp: ch.reward.xp, item: ch.reward.item, qty: ch.reward.qty };
 }
-

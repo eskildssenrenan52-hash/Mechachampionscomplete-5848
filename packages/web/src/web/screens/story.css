@@ -345,6 +345,38 @@
   font-size: 14px;
 }
 .ms-vs .ms-warn { width: auto; }
+.ms-route-panel {
+  position: relative;
+  z-index: 3;
+  width: min(990px, calc(100% - 28px));
+  margin: 16px auto 0;
+  padding: 12px;
+  background: rgba(4, 10, 21, .88);
+  box-shadow: 0 0 0 2px #1d3b58, 0 0 0 4px #04070d, 0 12px 32px rgba(0, 0, 0, .42);
+}
+.ms-route-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 4px 10px; }
+.ms-route-head h2 { margin-top: 5px; font-size: 13px; color: #fff; text-shadow: 0 2px 0 #0a2a40; }
+.ms-route-tools { display: flex; align-items: center; gap: 6px; }
+.ms-route-tools strong { min-width: 42px; text-align: center; color: #ffd27a; font-size: 11px; }
+.ms-route-tools .ai-plate { min-height: 32px; padding: 7px 9px; font-size: 10px; }
+.ms-route-viewport { position: relative; height: clamp(300px, 54vh, 560px); overflow: hidden; cursor: grab; touch-action: none; background: radial-gradient(circle at 50% 50%, rgba(25, 86, 112, .35), rgba(3, 10, 22, .95) 74%), linear-gradient(135deg, #071b2a, #09111e); box-shadow: inset 0 0 0 2px #0f3850; }
+.ms-route-viewport:active { cursor: grabbing; }
+.ms-route-world { position: absolute; inset: -8%; transform-origin: center; transition: transform 160ms steps(4); background-image: linear-gradient(rgba(53,226,240,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(53,226,240,.045) 1px, transparent 1px); background-size: 40px 40px; }
+.ms-route-glow { position: absolute; inset: 4%; background: radial-gradient(ellipse, transparent 35%, rgba(0,0,0,.65) 82%), repeating-linear-gradient(135deg, transparent 0 34px, rgba(53,226,240,.04) 35px 36px); pointer-events: none; }
+.ms-route-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.ms-route-lines polyline { fill: none; stroke: #35e2f0; stroke-width: .7; stroke-dasharray: 1.6 1.1; filter: drop-shadow(0 0 3px #35e2f0); opacity: .8; }
+.ms-route-node { position: absolute; translate: -50% -50%; display: grid; grid-template-columns: 34px minmax(90px, 150px); gap: 2px 8px; align-items: center; width: 190px; padding: 7px; border: 2px solid #35e2f0; color: #e8f4ff; text-align: left; background: rgba(5, 17, 29, .94); box-shadow: 0 0 0 3px #04070d, 0 0 18px rgba(53,226,240,.28); cursor: pointer; }
+.ms-route-node > span { grid-row: span 2; display: grid; place-items: center; width: 30px; height: 30px; font-family: "PressStart", monospace; font-size: 10px; color: #07101c; background: #35e2f0; }
+.ms-route-node b { font-family: "PressStart", monospace; font-size: 8px; line-height: 1.35; }
+.ms-route-node small { font-size: 8px; letter-spacing: .08em; color: #9fd8ec; }
+.ms-route-node:hover, .ms-route-node:focus-visible { z-index: 2; border-color: #ffd27a; box-shadow: 0 0 0 3px #04070d, 0 0 24px rgba(255,178,26,.55); outline: none; }
+.ms-route-node.is-next { border-color: #ffb21a; animation: ms-route-pulse 1.2s steps(3) infinite alternate; }
+.ms-route-node.is-next > span { background: #ffb21a; }
+.ms-route-node.is-done { border-color: #57d76a; }
+.ms-route-node.is-done > span { background: #57d76a; }
+.ms-route-node.is-locked { filter: grayscale(.8); opacity: .48; cursor: not-allowed; }
+@keyframes ms-route-pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.035); } }
+.ms-route-hint { margin: 9px 2px 0; color: #6e9cb2; font-size: 9px; letter-spacing: .1em; text-align: center; }
 .ms-chapters {
   position: relative;
   z-index: 3;
@@ -443,6 +475,16 @@
   .ms-map-head { grid-template-columns: auto 1fr auto; gap: 10px; padding: 10px 12px; }
   .ms-map-head h1 { font-size: 11px; line-height: 1.5; }
   .ms-map-head .ai-plate { font-size: 10px; padding: 8px 10px; }
+  .ms-route-panel { width: calc(100% - 20px); margin-top: 10px; padding: 8px; }
+  .ms-route-head { align-items: flex-start; flex-direction: column; }
+  .ms-route-head h2 { font-size: 11px; }
+  .ms-route-tools { width: 100%; justify-content: flex-end; }
+  .ms-route-viewport { height: 390px; }
+  .ms-route-node { width: 154px; grid-template-columns: 26px minmax(78px, 1fr); gap: 2px 6px; padding: 5px; }
+  .ms-route-node > span { width: 24px; height: 24px; font-size: 8px; }
+  .ms-route-node b { font-size: 7px; }
+  .ms-route-node small { font-size: 7px; }
+  .ms-route-hint { font-size: 8px; line-height: 1.5; }
   .ms-chapter { grid-template-columns: 1fr; gap: 10px; padding: 10px; }
   .ms-chapter .ai-plate { width: 100%; }
   .ms-chapter-body h2 { font-size: 12px; }
