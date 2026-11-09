@@ -204,15 +204,15 @@ export function BattleScreen({
 
   const busy = queue.length > 0;
   const combat = battle.combat;
-  const pActive = activeOf(battle, "player");
-  const eActive = activeOf(battle, "enemy");
-  const pStage = battle.player.fighters.find((f) => f.uid === stageActors.player) ?? pActive;
-  const eStage = battle.enemy.fighters.find((f) => f.uid === stageActors.enemy) ?? eActive;
+  const pActive = useMemo(() => activeOf(battle, "player"), [battle.player.active, battle.player.fighters]);
+  const eActive = useMemo(() => activeOf(battle, "enemy"), [battle.enemy.active, battle.enemy.fighters]);
+  const pStage = useMemo(() => battle.player.fighters.find((f) => f.uid === stageActors.player) ?? pActive, [battle.player.fighters, stageActors.player, pActive]);
+  const eStage = useMemo(() => battle.enemy.fighters.find((f) => f.uid === stageActors.enemy) ?? eActive, [battle.enemy.fighters, stageActors.enemy, eActive]);
   useEffect(() => {
     if (!busy) { setShot(null); setStageActors({}); }
   }, [busy]);
-  const pSkills = fighterSkills(pActive);
-  const pGuard = pSkills.find((s) => s.kind === "defense") ?? pSkills[pSkills.length - 1];
+  const pSkills = useMemo(() => fighterSkills(pActive), [pActive]);
+  const pGuard = useMemo(() => pSkills.find((s) => s.kind === "defense") ?? pSkills[pSkills.length - 1], [pSkills]);
 
   // alvos vivos do lado inimigo (foco de alvo por uid)
   const [reachSel, setReachSel] = useState(false);
