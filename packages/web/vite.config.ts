@@ -13,8 +13,12 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, root, "");
   Object.assign(process.env, env);
 
+  const publicBuild = process.env.GITHUB_PAGES === "1";
   return {
-    base: process.env.GITHUB_PAGES === "1" ? "./" : "/",
+    base: publicBuild ? "./" : "/",
+    build: publicBuild ? {
+      rollupOptions: { output: { format: "iife", inlineDynamicImports: true, entryFileNames: "game.js" } },
+    } : undefined,
     // All env files live at the repo root — keep Vite's own env loading there too,
     // so packages/web/.env* files can never shadow the root .env.
     envDir: root,
