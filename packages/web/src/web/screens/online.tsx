@@ -17,8 +17,10 @@ export function OnlineScreen({ onBack, backLabel = "CIDADE" }: { onBack: () => v
   useEffect(() => { void completeManagedRedirect().finally(() => setRedirected(true)); }, []);
   const { data: session, isPending } = authClient.useSession();
   if (!redirected || isPending) return <div className="mo-screen mo-center"><p className="mo-kicker">CONECTANDO AO SERVIDOR…</p></div>;
-  if (!session) return <AuthPanel onBack={onBack} />;
-  return <Lobby onBack={onBack} backLabel={backLabel} name={session.user.name} />;
+  const user = session?.user;
+  if (!user) return <AuthPanel onBack={onBack} />;
+  const pilotName = user.name?.trim() || user.email?.split("@")[0] || "PILOTO";
+  return <Lobby onBack={onBack} backLabel={backLabel} name={pilotName} />;
 }
 
 function AuthPanel({ onBack }: { onBack: () => void }) {
@@ -62,9 +64,9 @@ function AuthPanel({ onBack }: { onBack: () => void }) {
         <button role="tab" aria-selected={mode === "up"} onClick={() => setMode("up")}>CRIAR CONTA</button>
       </div>
       <form onSubmit={submit} className="mo-form">
-        {mode === "up" && <label>NOME DE PILOTO<input value={name} onChange={e => setName(e.target.value)} required minLength={2} maxLength={24} autoComplete="nickname" /></label>}
-        <label>E-MAIL<input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" /></label>
-        <label>SENHA<input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={10} autoComplete={mode === "up" ? "new-password" : "current-password"} /></label>
+        {mode === "up" && <label>NOME DE PILOTO<input aria-label="Nome de piloto" value={name} onChange={e => setName(e.target.value)} required minLength={2} maxLength={24} autoComplete="name" /></label>}
+        <label>E-MAIL<input aria-label="E-mail" type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" /></label>
+        <label>SENHA<input aria-label="Senha" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={10} autoComplete={mode === "up" ? "new-password" : "current-password"} /></label>
         {mode === "up" && <small>Mínimo de 10 caracteres.</small>}
         {error && <p className="mo-error" role="alert">{error}</p>}
         <button className="mo-primary" disabled={busy}>{busy ? "AGUARDE…" : mode === "up" ? "CRIAR E ENTRAR" : "ENTRAR"}</button>
