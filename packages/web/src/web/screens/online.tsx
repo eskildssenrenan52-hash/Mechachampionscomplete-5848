@@ -7,6 +7,7 @@ import { combatView, type CombatAction } from "@/game/combat";
 import type { RobotSave } from "@/game/engine";
 import { BattleScreen, type RemoteBattle } from "@/screens/battle";
 import { useCancelQueue, useJoinRoom, useOnlineAction, useOnlineLobby, useOnlineMatch, useQueueOnline, useSurrender } from "@/queries/online";
+import { DirectConnect } from "./direct-connect";
 import "./online.css";
 
 const errText = (e: unknown) => (e as { message?: string } | null)?.message ?? "Falha de conexão com o servidor.";
@@ -82,6 +83,7 @@ function GuestLobby({ onBack }: { onBack: () => void }) {
   const [code, setCode] = useState("");
   const [room, setRoom] = useState<string | null>(() => localStorage.getItem("mecha-local-room"));
   const [status, setStatus] = useState("Crie uma sala ou entre com um código.");
+  const [direct, setDirect] = useState(false);
   const channel = useRef<BroadcastChannel | null>(null);
   useEffect(() => {
     if (typeof BroadcastChannel === "undefined") return;
@@ -94,7 +96,8 @@ function GuestLobby({ onBack }: { onBack: () => void }) {
   }, [room]);
   const create = () => { const next = Math.random().toString(16).slice(2, 12).toUpperCase(); localStorage.setItem("mecha-local-room", next); setRoom(next); setCode(next); setStatus("AGUARDANDO OUTRO PILOTO NESTE DISPOSITIVO"); };
   const join = () => { const next = code.trim().toUpperCase(); if (next.length !== 10) { setStatus("O código precisa ter 10 caracteres."); return; } setRoom(next); channel.current?.postMessage({ type: "join", code: next }); setStatus("SOLICITANDO PAREAMENTO…"); };
-  return <div className="mo-screen mo-auth"><header className="mo-top"><button className="mo-ghost" onClick={onBack}>‹ VOLTAR</button><span>ARENA LOCAL</span></header><div className="mo-auth-card"><p className="mo-kicker">SEM CONTA · SEM API KEY · MESMO DISPOSITIVO</p><h1>CRIE UMA SALA</h1><p className="mo-lead">Este lobby funciona sem servidor usando armazenamento local e BroadcastChannel. Para PvP entre aparelhos, use o lobby online autenticado.</p>{room ? <><button className="mo-code" onClick={() => void navigator.clipboard?.writeText(room)}>{room}</button><p className="mo-note">{status}</p><button className="mo-secondary" onClick={() => { localStorage.removeItem("mecha-local-room"); setRoom(null); setCode(""); setStatus("Crie uma sala ou entre com um código."); }}>ENCERRAR SALA</button></> : <><button className="mo-primary" onClick={create}>CRIAR SALA</button><div className="mo-split"><span>OU ENTRAR</span></div><form className="mo-join" onSubmit={(e) => { e.preventDefault(); join(); }}><input value={code} onChange={(e) => setCode(e.target.value.replace(/[^0-9a-f]/gi, "").slice(0, 10).toUpperCase())} placeholder="CÓDIGO DA SALA" aria-label="Código da sala local" /><button className="mo-secondary" disabled={code.length !== 10}>ENTRAR</button></form><p className="mo-note">{status}</p></>}</div></div>;
+  if (direct) return <DirectConnect onBack={() => setDirect(false)} />;
+  return <div className="mo-screen mo-auth"><header className="mo-top"><button className="mo-ghost" onClick={onBack}>‹ VOLTAR</button><span>ARENA LOCAL</span></header><div className="mo-auth-card"><p className="mo-kicker">SEM API KEY · ESCOLHA O TRANSPORTE</p><h1>SALA DE CONEXÃO</h1><p className="mo-lead">Na mesma máquina, use o lobby local. Em aparelhos diferentes, use WebRTC direto e troque a oferta e a resposta por copiar/colar.</p><button className="mo-primary" onClick={() => setDirect(true)}>CONECTAR DOIS APARELHOS</button><div className="mo-split"><span>MESMO DISPOSITIVO</span></div>{room ? <><button className="mo-code" onClick={() => void navigator.clipboard?.writeText(room)}>{room}</button><p className="mo-note">{status}</p><button className="mo-secondary" onClick={() => { localStorage.removeItem("mecha-local-room"); setRoom(null); setCode(""); setStatus("Crie uma sala ou entre com um código."); }}>ENCERRAR SALA</button></> : <><button className="mo-secondary" onClick={create}>CRIAR SALA LOCAL</button><form className="mo-join" onSubmit={(e) => { e.preventDefault(); join(); }}><input value={code} onChange={(e) => setCode(e.target.value.replace(/[^0-9a-f]/gi, "").slice(0, 10).toUpperCase())} placeholder="CÓDIGO DA SALA" aria-label="Código da sala local" /><button className="mo-secondary" disabled={code.length !== 10}>ENTRAR</button></form><p className="mo-note">{status}</p></>}</div></div>;
 }
 
 function Lobby({ onBack, backLabel, name }: { onBack: () => void; backLabel: string; name: string }) {
