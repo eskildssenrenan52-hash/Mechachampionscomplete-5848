@@ -12,10 +12,11 @@ import {
 } from "react-native";
 import { WebView, type WebViewNavigation } from "react-native-webview";
 import { useFocusEffect } from "expo-router";
-import { GAME_URL } from "@/lib/game-url";
+import { GAME_URL } from "../lib/game-url";
 
 const BG = "#040912";
 const ACCENT = "#35e2f0";
+const LOCAL_GAME_URL = "file:///android_asset/game/index.html";
 
 /**
  * App mobile de Campeões Mecha: embarca o jogo web em tela cheia.
@@ -25,6 +26,7 @@ export default function GameScreen() {
   const webRef = useRef<WebView>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
+  const [sourceUri, setSourceUri] = useState(LOCAL_GAME_URL);
   const canGoBack = useRef(false);
 
   // Botão físico "voltar" do Android navega dentro do jogo antes de sair.
@@ -48,21 +50,30 @@ export default function GameScreen() {
     webRef.current?.reload();
   };
 
+  const openOnline = () => {
+    setFailed(false);
+    setLoading(true);
+    setSourceUri(GAME_URL);
+  };
+
   return (
     <View style={styles.root}>
       <RNStatusBar hidden />
       {failed ? (
         <View style={styles.center}>
           <Text style={styles.title}>SEM CONEXÃO COM A ARENA</Text>
-          <Text style={styles.body}>Não deu para carregar o jogo. Verifique a internet.</Text>
+          <Text style={styles.body}>A versão local não abriu. O jogo offline continua dentro do APK; a Arena Online usa o servidor e precisa de internet.</Text>
           <Pressable style={styles.btn} onPress={reload}>
             <Text style={styles.btnLabel}>TENTAR DE NOVO</Text>
+          </Pressable>
+          <Pressable style={[styles.btn, styles.onlineBtn]} onPress={openOnline}>
+            <Text style={styles.btnLabel}>ABRIR ARENA ONLINE</Text>
           </Pressable>
         </View>
       ) : (
         <WebView
           ref={webRef}
-          source={{ uri: GAME_URL }}
+          source={{ uri: sourceUri }}
           style={styles.web}
           containerStyle={styles.web}
           originWhitelist={["*"]}
@@ -75,6 +86,9 @@ export default function GameScreen() {
           overScrollMode="never"
           scrollEnabled={false}
           setSupportMultipleWindows={false}
+          allowFileAccess
+          allowFileAccessFromFileURLs
+          allowUniversalAccessFromFileURLs
           androidLayerType="hardware"
           decelerationRate="normal"
           onLoadEnd={() => setLoading(false)}
@@ -132,5 +146,6 @@ const styles = StyleSheet.create({
     borderColor: ACCENT,
     backgroundColor: "#0b1a2b",
   },
+  onlineBtn: { borderColor: "#ffb21a" },
   btnLabel: { color: "#fff", fontSize: 13, letterSpacing: 1 },
 });

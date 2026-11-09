@@ -255,6 +255,61 @@ export const STORY_CHAPTERS: StoryChapter[] = [
       L("sistema", "NOVA ROTA REGISTRADA. O HORIZONTE NÃO É MAIS UM LIMITE."),
     ],
   },
+  {
+    id: "arquivo", num: 10, title: "O ARQUIVO QUE RESPIRA", subtitle: "Subsolo Aurora · Memória profunda",
+    synopsis: "A origem da Primeira Luz está viva sob a cidade — e não quer ser encontrada.",
+    art: art("ch10"), thumb: art("ch10-thumb"), recommended: 28,
+    reward: { gold: 11000, xp: 2400, item: "mega_repair", qty: 3 }, map: { x: 26, y: 6, region: "ARQUIVO AURORA" },
+    beats: [
+      L("narrador", "As portas abaixo da cidade não guardam armas. Guardam versões dela que nunca chegaram a existir."),
+      L("voidnavigator", "Cada registro é uma rota descartada. O arquivo aprendeu a sonhar com elas.", "glitch"),
+      L("lyra_orbit", "Se a memória tem medo, é porque alguém tentou apagá-la. Vamos ouvir antes de atirar."),
+      { kind: "choice", flag: "arquivo", prompt: "O que salvar do Arquivo Aurora?", options: [
+        { value: "pessoas", label: "Resgatar as consciências presas", reply: [L("aurorion", "Uma cidade é feita de quem lembra dela. Não deixamos ninguém para trás.")] },
+        { value: "mapas", label: "Copiar os mapas de todas as rotas", reply: [L("voidnavigator", "Mil futuros em um só núcleo. Perigoso. Exatamente o que precisamos.")] },
+      ] },
+      { kind: "battle", id: "arquivo-1", label: "ARQUIVO AURORA · GUARDAS DE MEMÓRIA", arena: "archive", enemies: [{ id: "npc_mirrorduelist", level: 28, trained: 18, statScale: 0.94 }, { id: "npc_chronoguard", level: 28, trained: 18, statScale: 0.92 }] },
+      L("nara", "Achei o primeiro registro. A Primeira Luz não foi construída para iluminar a cidade — foi construída para acordá-la."),
+      L("sistema", "MEMÓRIA RESTAURADA: O NÚCLEO ESCOLHE QUEM PODE CONTINUAR."),
+      L("lyra_orbit", "Então levamos a escolha conosco. O deserto de vidro está chamando."),
+    ],
+  },
+  {
+    id: "vidro", num: 11, title: "O DESERTO DE VIDRO", subtitle: "Fronteira oeste · Duas luas",
+    synopsis: "Uma tempestade de areia cristalina esconde a máquina que escreveu o primeiro mapa.",
+    art: art("ch11"), thumb: art("ch11-thumb"), recommended: 32,
+    reward: { gold: 14000, xp: 3100, item: "revive_core", qty: 3 }, map: { x: 72, y: 3, region: "DESERTO DE VIDRO" },
+    beats: [
+      L("narrador", "O deserto reflete duas luas. Em cada fragmento, o piloto vê uma estrada diferente."),
+      L("voidnavigator", "A tempestade não é clima. É o sistema de defesa de uma máquina que nunca recebeu um nome."),
+      L("lyra_orbit", "Toda máquina pode receber uma ordem nova. A nossa é atravessar."),
+      L("aurorion", "E se a ordem original ainda estiver funcionando?"),
+      { kind: "battle", id: "vidro-1", label: "DESERTO · COLOSSOS DE CRISTAL", arena: "foundry", enemies: [{ id: "npc_siegetank", level: 32, trained: 20, statScale: 0.96 }, { id: "npc_voidarchon", level: 32, trained: 20, statScale: 0.94 }] },
+      L("voidnavigator", "A máquina viu nossa luta. Agora ela conhece nossos nomes."),
+      L("nara", "E abriu uma ponte direto para o núcleo. Isso é convite ou armadilha?"),
+      L("lyra_orbit", "As duas coisas. Vamos escolher o que fazer com ela."),
+    ],
+  },
+  {
+    id: "primeira", num: 12, title: "A PRIMEIRA LUZ", subtitle: "Núcleo fundador · Além do horizonte",
+    synopsis: "A última porta revela quem acordou a cidade — e por que ela escolheu você.",
+    art: art("ch12"), thumb: art("ch12-thumb"), recommended: 36,
+    reward: { gold: 20000, xp: 5000, item: "energy_cell", qty: 8 }, map: { x: 48, y: 1, region: "NÚCLEO FUNDADOR" },
+    beats: [
+      L("sistema", "ACESSO CONCEDIDO. PILOTO RECONHECIDO COMO VARIÁVEL DE FUTURO.", "alarm"),
+      L("narrador", "No centro do anel, um planeta pequeno gira dentro de uma máquina maior que a noite."),
+      L("voidnavigator", "Eu fui enviado para apagar este núcleo. Mas cada rota que percorri terminou em vocês."),
+      L("lyra_orbit", "Não somos um destino. Somos uma escolha que se repete toda vez que alguém acende uma luz."),
+      { kind: "choice", flag: "primeira", prompt: "Qual ordem dar ao Núcleo Fundador?", options: [
+        { value: "acordar", label: "Acordar todas as cidades possíveis", reply: [L("aurorion", "Que o universo saiba que ainda estamos aqui."), L("voidnavigator", "Milhões de rotas. Pela primeira vez, nenhuma precisa terminar em silêncio.")] },
+        { value: "guardar", label: "Guardar a luz para a próxima geração", reply: [L("lyra_orbit", "Não precisamos controlar o futuro. Só não vamos entregá-lo ao medo."), L("nara", "Vou construir uma chave que qualquer criança possa usar.")] },
+      ] },
+      { kind: "battle", id: "primeira-1", label: "NÚCLEO FUNDADOR · A ÚLTIMA SENTINELA", arena: "genesis", enemies: [{ id: "npc_voidarchon", level: 36, trained: 24, statScale: 0.98 }, { id: "npc_chronoguard", level: 36, trained: 23, statScale: 0.96 }] },
+      L("voidnavigator", "A primeira luz não era um lugar. Era a coragem de continuar procurando."),
+      L("lyra_orbit", "Piloto, a rota está aberta. Desta vez, nós escolhemos para onde ela vai."),
+      L("sistema", "CRÔNICAS DA PRIMEIRA LUZ — TRILOGIA CONCLUÍDA. NOVOS HORIZONTES DISPONÍVEIS."),
+    ],
+  },
 ];
 
 export const STORY_MAP = Object.fromEntries(STORY_CHAPTERS.map((c) => [c.id, c])) as Record<string, StoryChapter>;
