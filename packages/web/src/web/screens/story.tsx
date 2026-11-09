@@ -5,7 +5,7 @@ import { ITEM_MAP } from "@/game/config";
 import { ROBOT_MAP } from "@/game/robots";
 import {
   SPEAKERS, STORY_CHAPTERS, chapterUnlocked, completeStoryChapter, markStoryOpened, payStoryFight,
-  setStoryFlag, storyEnemies, type SpeakerId, type StoryBattle, type StoryChapter, type StoryChoice, type StoryLine,
+  setStoryFlag, storyEnemies, type SpeakerId, type StoryBattle, type StoryChapter, type StoryChoice, type StoryLine, type StoryBeat,
 } from "@/game/story";
 import "./story.css";
 
@@ -46,7 +46,9 @@ export function StoryScreen({ onBack }: { onBack: () => void }) {
     return { i, pending };
   }, [visible]);
 
-  const beat = chapter ? (cursor.pending[0] ?? chapter.beats[cursor.i]) : undefined;
+  const beat: StoryBeat | undefined = chapter
+    ? (cursor.pending.length > 0 ? cursor.pending[0] as StoryBeat : chapter.beats[cursor.i])
+    : undefined;
 
   const finishChapter = useCallback((ch: StoryChapter) => {
     const r = completeStoryChapter(ch.id);
@@ -200,8 +202,11 @@ function StoryMap({ cleared, last, hasTeam, playerLevel, onOpen, onBack }: { cle
     drag.current = { x: e.clientX, y: e.clientY, ox: mapView.x, oy: mapView.y };
   };
   const mapMove = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (!drag.current) return;
-    setMapView((v) => ({ ...v, x: drag.current!.ox + e.clientX - drag.current!.x, y: drag.current!.oy + e.clientY - drag.current!.y }));
+    const activeDrag = drag.current;
+    if (!activeDrag) return;
+    const dx = e.clientX - activeDrag.x;
+    const dy = e.clientY - activeDrag.y;
+    setMapView((v) => ({ ...v, x: activeDrag.ox + dx, y: activeDrag.oy + dy }));
   };
   const mapUp = () => { drag.current = null; };
   const zoom = (delta: number) => setMapView((v) => ({ ...v, zoom: Math.max(.72, Math.min(1.8, +(v.zoom + delta).toFixed(2))) }));

@@ -14,8 +14,25 @@
 .mc-connected-banner{position:absolute;top:34%;left:50%;z-index:8;transform:translateX(-50%);pointer-events:none;text-align:center;white-space:nowrap;padding:10px 22px;border-top:2px solid #e3b95b;border-bottom:2px solid #e3b95b;background:linear-gradient(90deg,#04111e00,#04111ef0 18%,#04111ef0 82%,#04111e00);color:#e6fbff;font:13px 'Silkscreen',monospace;letter-spacing:2px;text-shadow:0 0 10px #48e2f0;animation:mc-district 2.6s ease forwards}.mc-connected-banner small{display:block;color:#ffd27a;font:8px 'Silkscreen',monospace;letter-spacing:4px;margin-bottom:4px}
 @keyframes mc-district{0%{opacity:0;transform:translate(-50%,8px)}14%,72%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-6px)}}
 @media(prefers-reduced-motion:reduce){.mc-connected-banner{animation:mc-district-still 2.6s steps(1) forwards}@keyframes mc-district-still{0%,90%{opacity:1}100%{opacity:0}}.mc-connected-veil i{transition:none}}
+/* Dock de cidade: duas zonas fixas, pouco ruído e controles compactos. */
+.exploration-controls{position:absolute;left:0;right:0;bottom:0;z-index:8;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:8px 14px max(10px,env(safe-area-inset-bottom));pointer-events:auto;filter:drop-shadow(0 5px 8px #0008)}
+.exploration-controls[data-disabled="true"]{pointer-events:none;opacity:.55}
+.mc-city-joystick{position:relative;width:84px;height:84px;flex:0 0 84px;touch-action:none;user-select:none;background:#04101dcc;border:2px solid #3d7188;clip-path:polygon(22% 0,78% 0,100% 22%,100% 78%,78% 100%,22% 100%,0 78%,0 22%)}
+.mc-city-joystick>span:first-child{inset:7px!important}
+.mc-city-joystick>span:nth-child(2){left:23px!important;top:23px!important;width:36px!important;height:36px!important;border-width:2px!important}
+.mc-city-action-grid{display:grid;grid-template-columns:46px 52px;grid-template-rows:42px 52px;gap:5px;align-items:end;padding:5px;border:1px solid #31566b;background:#04101dcc;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+.mc-city-action{width:100%;height:42px;min-width:42px;min-height:42px;padding:3px;border-radius:2px!important}
+.mc-city-action[data-testid="jump-button"]{height:52px;grid-row:span 2}
+.mc-city-action span{font-size:6px!important;line-height:1.1}
+.mc-connected-use{bottom:132px;max-width:min(88%,360px);padding:8px 11px;font-size:8px}
+.mc-connected-journal-trigger,.mc-connected-picker{padding:5px 7px;font-size:6px}
+.mc-connected-journal-trigger{top:104px}.mc-connected-picker{top:68px}
+@media(max-width:430px){.exploration-controls{gap:8px;padding-inline:9px}.mc-city-joystick{width:76px;height:76px;flex-basis:76px}.mc-city-action-grid{grid-template-columns:42px 48px;grid-template-rows:38px 48px;gap:4px}.mc-city-action{height:38px;min-height:38px}.mc-city-action[data-testid="jump-button"]{height:48px}.mc-connected-use{bottom:120px}}
 /* Compact HUD: the card keeps district + place + map; control hints fold away after the first seconds. */
 .mc-connected-location{background:linear-gradient(90deg,#041422f0,#04142299);backdrop-filter:blur(3px);padding:9px 11px}
 .mc-connected-location span{overflow:hidden;max-height:40px;animation:mc-hint-fold 1s ease 9s forwards}
 @keyframes mc-hint-fold{to{max-height:0;opacity:0;margin:0}}
 @media(prefers-reduced-motion:reduce){.mc-connected-location span{animation:mc-hint-fold .01s linear 9s forwards}}
+
+.mc-connected-journal-trigger{position:absolute;top:106px;right:9px;z-index:7;padding:6px 9px;border:1px solid #8c79b9;background:#101b31e8;color:#dfd0ff;font:7px 'Silkscreen',monospace;cursor:pointer;box-shadow:0 3px 0 #050a14}.mc-connected-journal-trigger b{margin-left:5px;color:#ffe09a;font:7px monospace}.mc-connected-journal-trigger:disabled{opacity:.45;cursor:default}
+@media(max-height:700px){.mc-connected-journal-trigger{top:94px}}

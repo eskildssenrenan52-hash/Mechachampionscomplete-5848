@@ -34,18 +34,18 @@ export function ExplorationControls({ onMove, onJump, onJumpEnd, onAttack, onSpe
     setAxis({ x, y }); moveRef.current(x, y);
   };
   return (
-    <div className="exploration-controls" style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "8px 12px max(12px, env(safe-area-inset-bottom))", zIndex: 8, display: "flex", justifyContent: "space-between", alignItems: "flex-end", pointerEvents: disabled ? "none" : "auto" }}>
+    <div className="exploration-controls" data-disabled={disabled ? "true" : "false"}>
       <div ref={stick} role="slider" aria-label="Joystick de movimento" aria-valuemin={-100} aria-valuemax={100} aria-valuenow={Math.round(axis.x * 100)} data-testid="joystick"
         onPointerDown={e => { if (pointer.current !== null) return; e.preventDefault(); e.currentTarget.setPointerCapture(e.pointerId); pointer.current = e.pointerId; update(e.clientX, e.clientY); }}
         onPointerMove={e => { if (e.pointerId === pointer.current) update(e.clientX, e.clientY); }}
         onPointerUp={e => { if (e.pointerId === pointer.current) reset(); }}
         onPointerCancel={reset} onLostPointerCapture={reset}
-        style={{ position: "relative", width: 104, height: 104, flexShrink: 0, touchAction: "none", userSelect: "none", background: "rgba(4,14,27,.78)", border: "3px solid #3d7188", clipPath: "polygon(22% 0,78% 0,100% 22%,100% 78%,78% 100%,22% 100%,0 78%,0 22%)" }}>
+        className="mc-city-joystick">
         <span style={{ position: "absolute", inset: 8, border: "1px dashed #35e2f055", pointerEvents: "none" }} />
         <span style={{ position: "absolute", left: 29 + axis.x * 31, top: 29 + axis.y * 31, width: 40, height: 40, border: "3px solid #89f5ff", background: axis.x || axis.y ? "#238a9a" : "#143449", boxShadow: "3px 3px 0 #020813", pointerEvents: "none" }} />
         <span className="mk-title" style={{ position: "absolute", bottom: 3, left: 0, right: 0, textAlign: "center", fontSize: 5, pointerEvents: "none", color: "#b4e9f0" }}>{Math.abs(axis.x) > .75 ? "CORRIDA" : "MOVER"}</span>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "52px 62px", gridTemplateRows: "48px 62px", gap: 7, alignItems: "end" }}>
+      <div className="mc-city-action-grid">
         <Action label={cooldown > 0 ? `${cooldown.toFixed(1)}s` : "ESPECIAL"} name="Ataque especial" test="special-button" color="#35e2f0" disabled={cooldown > 0 || disabled} onDown={onSpecial} />
         <Action label="PULO" name="Pular" test="jump-button" color="#d7f9ff" onDown={onJump} onUp={onJumpEnd} disabled={disabled} />
         <Action label="ATAQUE" name="Atacar" test="attack-button" color="#ffb43a" onDown={onAttack} disabled={disabled} />
@@ -64,9 +64,9 @@ function Action({ label, name, test, color, disabled, onDown, onUp = () => {} }:
   useEffect(() => { if (disabled) release(); }, [disabled]);
   useEffect(() => { window.addEventListener("blur", release); return () => { window.removeEventListener("blur", release); }; }, []);
   const art = test === "jump-button" ? "touch_jump" : test === "attack-button" ? "touch_attack" : test === "special-button" ? "touch_special" : "touch_interact";
-  return <button className={`mc-ai-touch${pressed ? " is-pressed" : ""}`} aria-label={name} data-testid={test} disabled={disabled}
+  return <button className={`mc-ai-touch mc-city-action${pressed ? " is-pressed" : ""}`} aria-label={name} data-testid={test} disabled={disabled}
     onPointerDown={e => { if (owner.current !== null) return; e.preventDefault(); e.currentTarget.setPointerCapture(e.pointerId); owner.current = e.pointerId; setPressed(true); onDown(); }}
     onPointerUp={release} onPointerCancel={release} onLostPointerCapture={release}
     onClick={e => { if (e.detail === 0 && !disabled) onDown(); }}
-    style={{ width: "100%", height: test === "jump-button" ? 62 : 48, minWidth: 44, minHeight: 44, ["--touch-art" as string]: `url(/ui/ai/${art}.png)`, ["--touch-tone" as string]: color, touchAction: "none", userSelect: "none", cursor: "pointer" }}><span style={{ color }}>{label}</span></button>;
+    style={{ ["--touch-art" as string]: `url(/ui/ai/${art}.png)`, ["--touch-tone" as string]: color }}><span style={{ color }}>{label}</span></button>;
 }
