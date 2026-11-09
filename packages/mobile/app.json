@@ -27,8 +27,8 @@
     "name": "Campeões Mecha",
     "slug": "mobile",
     "version": "1.1.0",
-    "orientation": "portrait",
     "scheme": "runable-campeoe-xwr5e13",
+    "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "web": {
