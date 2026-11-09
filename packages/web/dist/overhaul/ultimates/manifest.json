@@ -1,0 +1,42 @@
+{
+  "aurorion": {
+    "ultimate": "/overhaul/ultimates/aurorion-ultimate.webp",
+    "special": "/overhaul/ultimates/aurorion-special.webp"
+  },
+  "ferrovax": {
+    "ultimate": "/overhaul/ultimates/ferrovax-ultimate.webp",
+    "special": "/overhaul/ultimates/ferrovax-special.webp"
+  },
+  "cryolance": {
+    "ultimate": "/overhaul/ultimates/cryolance-ultimate.webp",
+    "special": "/overhaul/ultimates/cryolance-special.webp"
+  },
+  "voltronin": {
+    "ultimate": "/overhaul/ultimates/voltronin-ultimate.webp",
+    "special": "/overhaul/ultimates/voltronin-special.webp"
+  },
+  "pyrokaiser": {
+    "ultimate": "/overhaul/ultimates/pyrokaiser-ultimate.webp",
+    "special": "/overhaul/ultimates/pyrokaiser-special.webp"
+  },
+  "terrabyte": {
+    "ultimate": "/overhaul/ultimates/terrabyte-ultimate.webp",
+    "special": "/overhaul/ultimates/terrabyte-special.webp"
+  },
+  "zephyrblade": {
+    "ultimate": "/overhaul/ultimates/zephyrblade-ultimate.webp",
+    "special": "/overhaul/ultimates/zephyrblade-special.webp"
+  },
+  "nullshade": {
+    "ultimate": "/overhaul/ultimates/nullshade-ultimate.webp",
+    "special": "/overhaul/ultimates/nullshade-special.webp"
+  },
+  "acidra": {
+    "ultimate": "/overhaul/ultimates/acidra-ultimate.webp",
+    "special": "/overhaul/ultimates/acidra-special.webp"
+  },
+  "gravitus": {
+    "ultimate": "/overhaul/ultimates/gravitus-ultimate.webp",
+    "special": "/overhaul/ultimates/gravitus-special.webp"
+  }
+}

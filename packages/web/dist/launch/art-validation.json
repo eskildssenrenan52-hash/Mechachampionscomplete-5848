@@ -1,0 +1,48 @@
+[
+  {
+    "name": "remulu-logo",
+    "size": [
+      1024,
+      1024
+    ]
+  },
+  {
+    "name": "loader-hangar",
+    "size": [
+      576,
+      1024
+    ]
+  },
+  {
+    "name": "loader-city",
+    "size": [
+      576,
+      1024
+    ]
+  },
+  {
+    "name": "loader-orbit",
+    "size": [
+      576,
+      1024
+    ]
+  },
+  {
+    "name": "loader-a",
+    "size": [
+      1000,
+      1000
+    ],
+    "frames": 25,
+    "uniqueHashes": 25
+  },
+  {
+    "name": "loader-b",
+    "size": [
+      1000,
+      1000
+    ],
+    "frames": 25,
+    "uniqueHashes": 25
+  }
+]

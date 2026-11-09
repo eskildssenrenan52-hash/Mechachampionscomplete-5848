@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => {
   Object.assign(process.env, env);
 
   return {
-    base: process.env.GITHUB_PAGES === "1" ? "/Mechachampionscomplete-5848/" : "/",
+    base: process.env.GITHUB_PAGES === "1" ? "./" : "/",
     // All env files live at the repo root — keep Vite's own env loading there too,
     // so packages/web/.env* files can never shadow the root .env.
     envDir: root,
