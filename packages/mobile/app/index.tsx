@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   BackHandler,
@@ -11,7 +11,6 @@ import {
   View,
 } from "react-native";
 import { WebView, type WebViewNavigation } from "react-native-webview";
-import { useFocusEffect } from "expo-router";
 import { GAME_URL } from "../lib/game-url";
 
 const BG = "#040912";
@@ -27,22 +26,19 @@ export default function GameScreen() {
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
   const [sourceUri, setSourceUri] = useState(GAME_URL);
+  const [mountWebView, setMountWebView] = useState(false);
   const canGoBack = useRef(false);
 
   // Botão físico "voltar" do Android navega dentro do jogo antes de sair.
-  useFocusEffect(
-    useCallback(() => {
-      if (Platform.OS !== "android") return;
-      const sub = BackHandler.addEventListener("hardwareBackPress", () => {
-        if (canGoBack.current) {
-          webRef.current?.goBack();
-          return true;
-        }
-        return false;
-      });
-      return () => sub.remove();
-    }, []),
-  );
+  useEffect(() => {
+    const timer = setTimeout(() => setMountWebView(true), 650);
+    if (Platform.OS !== "android") return () => clearTimeout(timer);
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (canGoBack.current) { webRef.current?.goBack(); return true; }
+      return false;
+    });
+    return () => { clearTimeout(timer); sub.remove(); };
+  }, []);
 
   const reload = () => {
     setFailed(false);
@@ -70,7 +66,7 @@ export default function GameScreen() {
             <Text style={styles.btnLabel}>ABRIR ARENA ONLINE</Text>
           </Pressable>
         </View>
-      ) : (
+      ) : !mountWebView ? null : (
         <WebView
           ref={webRef}
           source={{ uri: sourceUri }}
@@ -89,7 +85,7 @@ export default function GameScreen() {
           allowFileAccess
           allowFileAccessFromFileURLs
           allowUniversalAccessFromFileURLs
-          androidLayerType="hardware"
+          androidLayerType="software"
           decelerationRate="normal"
           onLoadEnd={() => setLoading(false)}
           onError={() => {
