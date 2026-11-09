@@ -26,7 +26,7 @@ export default function GameScreen() {
   const webRef = useRef<WebView>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
-  const [sourceUri, setSourceUri] = useState(LOCAL_GAME_URL);
+  const [sourceUri, setSourceUri] = useState(GAME_URL);
   const canGoBack = useRef(false);
 
   // Botão físico "voltar" do Android navega dentro do jogo antes de sair.
@@ -93,14 +93,19 @@ export default function GameScreen() {
           decelerationRate="normal"
           onLoadEnd={() => setLoading(false)}
           onError={() => {
+            if (sourceUri === GAME_URL) {
+              setSourceUri(LOCAL_GAME_URL);
+              setLoading(true);
+              return;
+            }
             setLoading(false);
             setFailed(true);
           }}
           onHttpError={({ nativeEvent }) => {
-            if (nativeEvent.statusCode >= 500) {
-              setLoading(false);
-              setFailed(true);
-            }
+            if (nativeEvent.statusCode >= 500 && sourceUri === GAME_URL) {
+              setSourceUri(LOCAL_GAME_URL);
+              setLoading(true);
+            } else if (nativeEvent.statusCode >= 500) { setLoading(false); setFailed(true); }
           }}
           onNavigationStateChange={(nav: WebViewNavigation) => {
             canGoBack.current = nav.canGoBack;

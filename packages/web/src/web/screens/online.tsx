@@ -30,6 +30,7 @@ function AuthPanel({ onBack }: { onBack: () => void }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [guest, setGuest] = useState(false);
   const google = async () => {
     setError(null); setBusy(true);
     try {
@@ -51,12 +52,14 @@ function AuthPanel({ onBack }: { onBack: () => void }) {
     } catch (err) { setError(errText(err)); }
     finally { setBusy(false); }
   };
+  if (guest) return <GuestLobby onBack={() => setGuest(false)} />;
   return <div className="mo-screen mo-auth">
     <header className="mo-top"><button className="mo-ghost" onClick={onBack}>‹ VOLTAR</button><span>ARENA ONLINE</span></header>
     <div className="mo-auth-card">
       <p className="mo-kicker">PvP EM TEMPO REAL · SERVIDOR AUTORITATIVO</p>
       <h1>CONECTE SEU PILOTO</h1>
       <p className="mo-lead">Uma conta guarda vitórias, derrotas e a partida em andamento. O progresso offline continua no seu aparelho.</p>
+      <button className="mo-secondary" onClick={() => setGuest(true)}>CONTINUAR SEM CONTA · SALA LOCAL</button>
       <button className="mo-google" onClick={google} disabled={busy}><span>G</span>CONTINUAR COM GOOGLE</button>
       <div className="mo-split"><span>OU E-MAIL</span></div>
       <div className="mo-tabs" role="tablist">
@@ -73,6 +76,25 @@ function AuthPanel({ onBack }: { onBack: () => void }) {
       </form>
     </div>
   </div>;
+}
+
+function GuestLobby({ onBack }: { onBack: () => void }) {
+  const [code, setCode] = useState("");
+  const [room, setRoom] = useState<string | null>(() => localStorage.getItem("mecha-local-room"));
+  const [status, setStatus] = useState("Crie uma sala ou entre com um código.");
+  const channel = useRef<BroadcastChannel | null>(null);
+  useEffect(() => {
+    if (typeof BroadcastChannel === "undefined") return;
+    const c = new BroadcastChannel("mecha-local-arena"); channel.current = c;
+    c.onmessage = (event) => {
+      if (event.data?.type === "join" && event.data.code === room) { setStatus("RIVAL ENCONTRADO · SALA PAREADA"); c.postMessage({ type: "paired", code: room }); }
+      if (event.data?.type === "paired" && event.data.code === room) setStatus("RIVAL ENCONTRADO · SALA PAREADA");
+    };
+    return () => c.close();
+  }, [room]);
+  const create = () => { const next = Math.random().toString(16).slice(2, 12).toUpperCase(); localStorage.setItem("mecha-local-room", next); setRoom(next); setCode(next); setStatus("AGUARDANDO OUTRO PILOTO NESTE DISPOSITIVO"); };
+  const join = () => { const next = code.trim().toUpperCase(); if (next.length !== 10) { setStatus("O código precisa ter 10 caracteres."); return; } setRoom(next); channel.current?.postMessage({ type: "join", code: next }); setStatus("SOLICITANDO PAREAMENTO…"); };
+  return <div className="mo-screen mo-auth"><header className="mo-top"><button className="mo-ghost" onClick={onBack}>‹ VOLTAR</button><span>ARENA LOCAL</span></header><div className="mo-auth-card"><p className="mo-kicker">SEM CONTA · SEM API KEY · MESMO DISPOSITIVO</p><h1>CRIE UMA SALA</h1><p className="mo-lead">Este lobby funciona sem servidor usando armazenamento local e BroadcastChannel. Para PvP entre aparelhos, use o lobby online autenticado.</p>{room ? <><button className="mo-code" onClick={() => void navigator.clipboard?.writeText(room)}>{room}</button><p className="mo-note">{status}</p><button className="mo-secondary" onClick={() => { localStorage.removeItem("mecha-local-room"); setRoom(null); setCode(""); setStatus("Crie uma sala ou entre com um código."); }}>ENCERRAR SALA</button></> : <><button className="mo-primary" onClick={create}>CRIAR SALA</button><div className="mo-split"><span>OU ENTRAR</span></div><form className="mo-join" onSubmit={(e) => { e.preventDefault(); join(); }}><input value={code} onChange={(e) => setCode(e.target.value.replace(/[^0-9a-f]/gi, "").slice(0, 10).toUpperCase())} placeholder="CÓDIGO DA SALA" aria-label="Código da sala local" /><button className="mo-secondary" disabled={code.length !== 10}>ENTRAR</button></form><p className="mo-note">{status}</p></>}</div></div>;
 }
 
 function Lobby({ onBack, backLabel, name }: { onBack: () => void; backLabel: string; name: string }) {

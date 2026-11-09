@@ -2,7 +2,6 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { GateProvider, useGate } from "@/components/gate";
 import { LoadingScreen, StudioSplash } from "@/components/entry-experience";
 import { ScreenBoundary } from "@/components/screen-boundary";
-import { SystemGuide } from "@/components/system-guide";
 import { type Screen } from "@/screens/menu";
 import { getState, useGame } from "@/game/save";
 import { startTutorial } from "@/game/tutorial";
@@ -90,7 +89,6 @@ function GameContent() {
   const [screen, setScreen] = useState<Screen>("menu");
   const [entry, setEntry] = useState<"title" | "tutorial" | "home" | "city" | "online">("title");
   const [practice, setPractice] = useState(false);
-  const [guideOpen, setGuideOpen] = useState(false);
   const g = useGame();
   const { transition } = useGate();
   const close = () => transition(() => setScreen("menu"));
@@ -179,8 +177,8 @@ function GameContent() {
       <>
         <ScreenBoundary exitLabel="VOLTAR AO TÍTULO" onExit={() => setEntry("title")}>
           {entry === "home"
-            ? <HomeLab onEnter={enter} onExit={() => transition(() => setEntry("city"))} enabled={screen === "menu" && !guideOpen} />
-            : <HubCity onEnter={enter} enabled={screen === "menu" && !guideOpen} />}
+            ? <HomeLab onEnter={enter} onExit={() => transition(() => setEntry("city"))} enabled={screen === "menu"} />
+            : <HubCity onEnter={enter} enabled={screen === "menu"} />}
         </ScreenBoundary>
         {entry === "city" && screen === "menu" && <button className="mc-city-home-return" onClick={() => transition(() => setEntry("home"))} aria-label="Voltar para casa-laboratório">⌂ CASA · FORJA</button>}
 
@@ -236,8 +234,6 @@ function GameContent() {
           </div>
         )}
         {screen === "menu" && entry === "city" && <button className="mc-pantheon-trigger" data-testid="pantheon-button" disabled={!systemUnlocked(g, "pantheon")} onClick={() => enter("pantheon")} aria-label="Abrir Panteão"><span className="pt-sheet" style={{ width: 30, height: 30, backgroundImage: "url(/mythic/emblem.webp)" }} />{systemUnlocked(g, "pantheon") ? "PANTEÃO" : `PANTEÃO · NV ${UNLOCK_LEVEL.pantheon}`}</button>}
-        {screen === "menu" && <button className="mc-guide-trigger" onClick={() => setGuideOpen(true)} aria-label="Abrir briefing e rota de desbloqueios"><img src="/overhaul/pilot.webp" alt="" />BRIEFING</button>}
-        <SystemGuide screen={screen} open={guideOpen} onClose={() => setGuideOpen(false)} onEnter={enter} />
       </>
     </Suspense>
   );
