@@ -1,152 +1,51 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  BackHandler,
-  Image,
-  Platform,
-  Pressable,
-  StatusBar as RNStatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { WebView, type WebViewNavigation } from "react-native-webview";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Linking, Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
 import { GAME_URL } from "../lib/game-url";
 
 const BG = "#040912";
 const ACCENT = "#35e2f0";
-const LOCAL_GAME_URL = "file:///android_asset/game/index.html";
 
-/**
- * App mobile de Campeões Mecha: embarca o jogo web em tela cheia.
- * O jogo salva progresso no localStorage do WebView (persistente no dispositivo).
- */
 export default function GameScreen() {
-  const webRef = useRef<WebView>(null);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-  const [sourceUri, setSourceUri] = useState(GAME_URL);
-  const [mountWebView, setMountWebView] = useState(false);
-  const canGoBack = useRef(false);
+  const [opening, setOpening] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Botão físico "voltar" do Android navega dentro do jogo antes de sair.
-  useEffect(() => {
-    const timer = setTimeout(() => setMountWebView(true), 650);
-    if (Platform.OS !== "android") return () => clearTimeout(timer);
-    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
-      if (canGoBack.current) { webRef.current?.goBack(); return true; }
-      return false;
-    });
-    return () => { clearTimeout(timer); sub.remove(); };
-  }, []);
-
-  const reload = () => {
-    setFailed(false);
-    setLoading(true);
-    webRef.current?.reload();
+  const openGame = async () => {
+    setOpening(true); setError(null);
+    try {
+      const canOpen = await Linking.canOpenURL(GAME_URL);
+      if (!canOpen) throw new Error("Nenhum navegador compatível foi encontrado.");
+      await Linking.openURL(GAME_URL);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Não foi possível abrir o jogo.");
+    } finally { setOpening(false); }
   };
 
-  const openOnline = () => {
-    setFailed(false);
-    setLoading(true);
-    setSourceUri(GAME_URL);
-  };
+  useEffect(() => { const timer = setTimeout(() => { void openGame(); }, 450); return () => clearTimeout(timer); }, []);
 
-  return (
-    <View style={styles.root}>
-      <RNStatusBar hidden />
-      {failed ? (
-        <View style={styles.center}>
-          <Text style={styles.title}>SEM CONEXÃO COM A ARENA</Text>
-          <Text style={styles.body}>A versão local não abriu. O jogo offline continua dentro do APK; a Arena Online usa o servidor e precisa de internet.</Text>
-          <Pressable style={styles.btn} onPress={reload}>
-            <Text style={styles.btnLabel}>TENTAR DE NOVO</Text>
-          </Pressable>
-          <Pressable style={[styles.btn, styles.onlineBtn]} onPress={openOnline}>
-            <Text style={styles.btnLabel}>ABRIR ARENA ONLINE</Text>
-          </Pressable>
-        </View>
-      ) : !mountWebView ? null : (
-        <WebView
-          ref={webRef}
-          source={{ uri: sourceUri }}
-          style={styles.web}
-          containerStyle={styles.web}
-          originWhitelist={["*"]}
-          javaScriptEnabled
-          domStorageEnabled
-          cacheEnabled
-          allowsInlineMediaPlayback
-          mediaPlaybackRequiresUserAction={false}
-          bounces={false}
-          overScrollMode="never"
-          scrollEnabled={false}
-          setSupportMultipleWindows={false}
-          allowFileAccess
-          allowFileAccessFromFileURLs
-          allowUniversalAccessFromFileURLs
-          androidLayerType="software"
-          decelerationRate="normal"
-          onLoadEnd={() => setLoading(false)}
-          onError={() => {
-            if (sourceUri === GAME_URL) {
-              setSourceUri(LOCAL_GAME_URL);
-              setLoading(true);
-              return;
-            }
-            setLoading(false);
-            setFailed(true);
-          }}
-          onHttpError={({ nativeEvent }) => {
-            if (nativeEvent.statusCode >= 500 && sourceUri === GAME_URL) {
-              setSourceUri(LOCAL_GAME_URL);
-              setLoading(true);
-            } else if (nativeEvent.statusCode >= 500) { setLoading(false); setFailed(true); }
-          }}
-          onNavigationStateChange={(nav: WebViewNavigation) => {
-            canGoBack.current = nav.canGoBack;
-          }}
-        />
-      )}
-
-      {loading && !failed && (
-        <View style={styles.splash} pointerEvents="none">
-          <Image
-            source={require("../assets/splash-icon.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <ActivityIndicator color={ACCENT} size="large" />
-          <Text style={styles.loadingText}>CARREGANDO OS MECHAS…</Text>
-        </View>
-      )}
+  return <View style={styles.root}>
+    <StatusBar hidden />
+    <View style={styles.card}>
+      <Text style={styles.mark}>MC</Text>
+      <Text style={styles.title}>CAMPEÕES MECHA</Text>
+      <Text style={styles.subtitle}>ABRINDO A ARENA</Text>
+      {opening && <><ActivityIndicator color={ACCENT} size="large" /><Text style={styles.hint}>INICIANDO JOGO…</Text></>}
+      {!opening && !error && <Text style={styles.hint}>O jogo foi aberto no navegador.</Text>}
+      {error && <Text style={styles.error}>{error}</Text>}
+      <Pressable style={styles.button} onPress={() => void openGame()}><Text style={styles.buttonText}>ABRIR JOGO</Text></Pressable>
+      <Text style={styles.note}>O launcher não usa WebView. Isso evita encerramentos nativos em aparelhos incompatíveis.</Text>
     </View>
-  );
+  </View>;
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: BG },
-  web: { flex: 1, backgroundColor: BG },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24, gap: 12 },
-  splash: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: BG,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 16,
-  },
-  logo: { width: 140, height: 140 },
-  loadingText: { color: ACCENT, fontSize: 12, letterSpacing: 1 },
-  title: { color: ACCENT, fontSize: 15, fontWeight: "700", textAlign: "center" },
-  body: { color: "#9fb3c8", fontSize: 13, textAlign: "center" },
-  btn: {
-    marginTop: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 22,
-    borderWidth: 2,
-    borderColor: ACCENT,
-    backgroundColor: "#0b1a2b",
-  },
-  onlineBtn: { borderColor: "#ffb21a" },
-  btnLabel: { color: "#fff", fontSize: 13, letterSpacing: 1 },
+  root: { flex: 1, backgroundColor: BG, alignItems: "center", justifyContent: "center", padding: 22 },
+  card: { width: "100%", maxWidth: 390, alignItems: "center", padding: 28, borderWidth: 1, borderColor: "#35e2f066", backgroundColor: "#071725", gap: 15 },
+  mark: { color: "#ffb21a", fontSize: 30, fontWeight: "900", letterSpacing: 5 },
+  title: { color: "#f0fdff", fontSize: 18, fontWeight: "800", letterSpacing: 2, textAlign: "center" },
+  subtitle: { color: ACCENT, fontSize: 11, letterSpacing: 2 },
+  hint: { color: "#9dbcca", fontSize: 12, textAlign: "center" },
+  error: { color: "#ff9b90", fontSize: 12, textAlign: "center", lineHeight: 18 },
+  button: { minWidth: 190, paddingVertical: 15, paddingHorizontal: 24, alignItems: "center", backgroundColor: "#0e556b", borderWidth: 1, borderColor: ACCENT },
+  buttonText: { color: "#f0fdff", fontSize: 12, fontWeight: "800", letterSpacing: 2 },
+  note: { color: "#668596", fontSize: 10, lineHeight: 15, textAlign: "center" },
 });
